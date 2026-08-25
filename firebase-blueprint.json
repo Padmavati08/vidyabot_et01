@@ -1,0 +1,124 @@
+{
+  "entities": {
+    "users": {
+      "title": "User",
+      "description": "Student profile metadata and learning settings",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "state": { "type": "string" },
+        "board": { "type": "string" },
+        "classLevel": { "type": "string" },
+        "selectedLanguages": { "type": "array", "items": { "type": "string" } },
+        "currentLanguage": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "streakDays": { "type": "number" },
+        "lastActiveDate": { "type": "string" }
+      },
+      "required": ["name", "state", "board", "classLevel", "selectedLanguages", "currentLanguage"]
+    },
+    "quizAttempts": {
+      "title": "Quiz Attempt",
+      "description": "Records of pre-test, post-test, and revision quizzes",
+      "type": "object",
+      "properties": {
+        "topicId": { "type": "string" },
+        "quizType": { "type": "string" },
+        "score": { "type": "number" },
+        "totalQuestions": { "type": "number" },
+        "answers": { "type": "array" },
+        "timestamp": { "type": "string" }
+      },
+      "required": ["topicId", "quizType", "score", "totalQuestions", "timestamp"]
+    },
+    "errorBook": {
+      "title": "Error Book Item",
+      "description": "Student mistakes classified with concepts and explanations",
+      "type": "object",
+      "properties": {
+        "topicId": { "type": "string" },
+        "topicTitle": { "type": "string" },
+        "questionId": { "type": "string" },
+        "questionText": { "type": "string" },
+        "studentAnswer": { "type": "string" },
+        "correctAnswer": { "type": "string" },
+        "explanation": { "type": "string" },
+        "errorType": { "type": "string" },
+        "conceptKey": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "isUnderstood": { "type": "boolean" },
+        "simplifiedExplanation": { "type": "string" }
+      },
+      "required": ["topicId", "questionId", "questionText", "studentAnswer", "correctAnswer", "errorType", "conceptKey", "isUnderstood", "createdAt"]
+    },
+    "revisionSchedules": {
+      "title": "Revision Schedule",
+      "description": "Spaced repetition (Day 1, 3, 7) schedules and compact formula sheets",
+      "type": "object",
+      "properties": {
+        "topicId": { "type": "string" },
+        "topicTitle": { "type": "string" },
+        "postTestCompletedAt": { "type": "string" },
+        "levels": { "type": "array" },
+        "compactNotes": { "type": "object" }
+      },
+      "required": ["topicId", "topicTitle", "postTestCompletedAt", "levels"]
+    },
+    "badges": {
+      "title": "Badge",
+      "description": "Student gamification milestones and unlocked awards",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "icon": { "type": "string" },
+        "unlocked": { "type": "boolean" },
+        "unlockedAt": { "type": "string" },
+        "progress": { "type": "number" }
+      },
+      "required": ["id", "title", "description", "icon", "unlocked", "progress"]
+    },
+    "uploadedMaterials": {
+      "title": "Uploaded Material",
+      "description": "Student uploaded study notes, PDFs, or educational video links",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "type": { "type": "string" },
+        "fileOrUrl": { "type": "string" },
+        "fileSize": { "type": "string" },
+        "subject": { "type": "string" },
+        "chapterId": { "type": "string" },
+        "topicId": { "type": "string" },
+        "uploadedAt": { "type": "string" },
+        "status": { "type": "string" },
+        "extractedSummary": { "type": "string" }
+      },
+      "required": ["id", "title", "type", "fileOrUrl", "subject", "uploadedAt", "status"]
+    }
+  },
+  "firestore": {
+    "users": {
+      "schema": "users",
+      "subcollections": {
+        "quizAttempts": {
+          "schema": "quizAttempts"
+        },
+        "errorBook": {
+          "schema": "errorBook"
+        },
+        "revisionSchedules": {
+          "schema": "revisionSchedules"
+        },
+        "badges": {
+          "schema": "badges"
+        },
+        "uploadedMaterials": {
+          "schema": "uploadedMaterials"
+        }
+      }
+    }
+  }
+}

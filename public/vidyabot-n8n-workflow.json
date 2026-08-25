@@ -1,0 +1,85 @@
+{
+  "name": "Vidyabot - Adaptive Learning & Doubt Remediation Engine",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "vidyabot-ai",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "1",
+      "name": "Webhook Ingress",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300],
+      "webhookId": "vidyabot-ai"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Vidyabot Adaptive Learning Engine (n8n Automation Script)\nconst body = $input.item.json.body || {};\nconst action = body.action || 'ask_doubt';\nconst query = body.query || body.question || '';\nconst topic = body.topicTitle || 'Newton\\'s Laws of Motion';\nconst lang = body.language || 'en';\nconst errorType = body.errorType || '';\n\nlet responseTitle = 'Adaptive Learning Guidance';\nlet responseText = '';\nlet steps = [];\n\nif (action === 'simplify_error') {\n  responseTitle = `3-Step Resolution for ${errorType || 'Concept'} Error`;\n  if (lang === 'mr') {\n    steps = [\n      'पायरी १: मूळ संकल्पना समजून घ्या (उदा. जडत्व किंवा संवेग).',\n      'पायरी २: योग्य सूत्र निवडा (F = ma किंवा p = mv) आणि दिलेल्या किमती मांडा.',\n      'पायरी ३: एकके (SI Units: N, m/s², kg·m/s) नीट तपासून अंतिम उत्तर काढा.'\n    ];\n    responseText = `त्रुटी विश्लेषण: ${errorType} प्रकारची चूक सुधारण्यासाठी वरील ३ पायऱ्यांचे अनुसरण करा.`;\n  } else if (lang === 'hi') {\n    steps = [\n      'चरण 1: मूल अवधारणा को स्पष्ट करें (जड़त्व या संवेग).',\n      'चरण 2: सही सूत्र (F = ma या p = mv) का चयन करें और मान रखें।',\n      'चरण 3: इकाइयों (SI Units) की दोबारा जांच करके अंतिम उत्तर प्राप्त करें।'\n    ];\n    responseText = `त्रुटि निवारण: ${errorType} को ठीक करने के लिए इन चरणों का पालन करें।`;\n  } else {\n    steps = [\n      'Step 1: Identify the underlying physical principle (e.g. Inertia, Net Force, or Momentum).',\n      'Step 2: State given values with standard SI units and select the matching formula (e.g. F = ma).',\n      'Step 3: Perform unit verification and double-check arithmetic calculations.'\n    ];\n    responseText = `Error Diagnostics: Systematic breakdown for your ${errorType || 'misconception'} in ${topic}.`;\n  }\n} else {\n  // Default Doubt Assistant\n  if (lang === 'mr') {\n    responseText = `विद्याबॉट (n8n द्वारे): ${topic} संदर्भातील तुमच्या शंकेचे उत्तर - गतीच्या नियमांनुसार प्रत्येक क्रियेला समान व विरुद्ध प्रतिक्रिया असते.`;\n  } else if (lang === 'hi') {\n    responseText = `विद्याबॉट (n8n संचालित): ${topic} के लिए आपका समाधान - गति के नियमों के अनुसार बल द्रव्यमान और त्वरण का गुणनफल है।`;\n  } else {\n    responseText = `Vidyabot (Powered by n8n Workflow): For \"${query || topic}\", remember that unbalanced forces cause change in momentum according to Newton's Laws. Keep practicing!`;\n  }\n}\n\nreturn {\n  status: 'success',\n  provider: 'n8n Workflow Engine',\n  workflow_id: 'vidyabot-ai-remediation',\n  timestamp: new Date().toISOString(),\n  reply: responseText,\n  steps: steps,\n  metadata: {\n    topic: topic,\n    action: action,\n    language: lang\n  }\n};"
+      },
+      "id": "2",
+      "name": "Process Remediation & AI Logic",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [500, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              },
+              {
+                "name": "Access-Control-Allow-Methods",
+                "value": "POST, GET, OPTIONS"
+              },
+              {
+                "name": "Access-Control-Allow-Headers",
+                "value": "Content-Type, Authorization"
+              }
+            ]
+          }
+        }
+      },
+      "id": "3",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [760, 300]
+    }
+  ],
+  "connections": {
+    "Webhook Ingress": {
+      "main": [
+        [
+          {
+            "node": "Process Remediation & AI Logic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Remediation & AI Logic": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

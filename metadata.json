@@ -1,0 +1,6 @@
+{
+  "name": "Vidyabot",
+  "description": "An AI-powered personalized learning companion for Indian school students, featuring diagnostics, bilingual lessons in English, Marathi and Hindi, error analysis, and spaced revision.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
