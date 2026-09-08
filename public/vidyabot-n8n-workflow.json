@@ -1,5 +1,5 @@
 {
-  "name": "Vidyabot - Adaptive Learning & Doubt Remediation Engine",
+  "name": "Vidyabot AI Workflow",
   "nodes": [
     {
       "parameters": {
@@ -8,66 +8,96 @@
         "responseMode": "responseNode",
         "options": {}
       },
-      "id": "1",
-      "name": "Webhook Ingress",
+      "id": "e0c3bf9c-3784-478a-bf62-87d8989d6832",
+      "name": "Vidyabot Webhook",
       "type": "n8n-nodes-base.webhook",
-      "typeVersion": 1,
-      "position": [240, 300],
-      "webhookId": "vidyabot-ai"
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "a400fede-144c-4c43-94c3-fb58f196e919"
     },
     {
       "parameters": {
-        "jsCode": "// Vidyabot Adaptive Learning Engine (n8n Automation Script)\nconst body = $input.item.json.body || {};\nconst action = body.action || 'ask_doubt';\nconst query = body.query || body.question || '';\nconst topic = body.topicTitle || 'Newton\\'s Laws of Motion';\nconst lang = body.language || 'en';\nconst errorType = body.errorType || '';\n\nlet responseTitle = 'Adaptive Learning Guidance';\nlet responseText = '';\nlet steps = [];\n\nif (action === 'simplify_error') {\n  responseTitle = `3-Step Resolution for ${errorType || 'Concept'} Error`;\n  if (lang === 'mr') {\n    steps = [\n      'पायरी १: मूळ संकल्पना समजून घ्या (उदा. जडत्व किंवा संवेग).',\n      'पायरी २: योग्य सूत्र निवडा (F = ma किंवा p = mv) आणि दिलेल्या किमती मांडा.',\n      'पायरी ३: एकके (SI Units: N, m/s², kg·m/s) नीट तपासून अंतिम उत्तर काढा.'\n    ];\n    responseText = `त्रुटी विश्लेषण: ${errorType} प्रकारची चूक सुधारण्यासाठी वरील ३ पायऱ्यांचे अनुसरण करा.`;\n  } else if (lang === 'hi') {\n    steps = [\n      'चरण 1: मूल अवधारणा को स्पष्ट करें (जड़त्व या संवेग).',\n      'चरण 2: सही सूत्र (F = ma या p = mv) का चयन करें और मान रखें।',\n      'चरण 3: इकाइयों (SI Units) की दोबारा जांच करके अंतिम उत्तर प्राप्त करें।'\n    ];\n    responseText = `त्रुटि निवारण: ${errorType} को ठीक करने के लिए इन चरणों का पालन करें।`;\n  } else {\n    steps = [\n      'Step 1: Identify the underlying physical principle (e.g. Inertia, Net Force, or Momentum).',\n      'Step 2: State given values with standard SI units and select the matching formula (e.g. F = ma).',\n      'Step 3: Perform unit verification and double-check arithmetic calculations.'\n    ];\n    responseText = `Error Diagnostics: Systematic breakdown for your ${errorType || 'misconception'} in ${topic}.`;\n  }\n} else {\n  // Default Doubt Assistant\n  if (lang === 'mr') {\n    responseText = `विद्याबॉट (n8n द्वारे): ${topic} संदर्भातील तुमच्या शंकेचे उत्तर - गतीच्या नियमांनुसार प्रत्येक क्रियेला समान व विरुद्ध प्रतिक्रिया असते.`;\n  } else if (lang === 'hi') {\n    responseText = `विद्याबॉट (n8n संचालित): ${topic} के लिए आपका समाधान - गति के नियमों के अनुसार बल द्रव्यमान और त्वरण का गुणनफल है।`;\n  } else {\n    responseText = `Vidyabot (Powered by n8n Workflow): For \"${query || topic}\", remember that unbalanced forces cause change in momentum according to Newton's Laws. Keep practicing!`;\n  }\n}\n\nreturn {\n  status: 'success',\n  provider: 'n8n Workflow Engine',\n  workflow_id: 'vidyabot-ai-remediation',\n  timestamp: new Date().toISOString(),\n  reply: responseText,\n  steps: steps,\n  metadata: {\n    topic: topic,\n    action: action,\n    language: lang\n  }\n};"
+        "promptType": "define",
+        "text": "=Query: {{ $json.body.query }}\nTopic: {{ $json.body.topicTitle }}\nLanguage: {{ $json.body.language }}\nAction: {{ $json.body.action }}\nError Type: {{ $json.body.errorType }}",
+        "options": {
+          "systemMessage": "You are Vidyabot, an encouraging and clear secondary school physics and science teacher. Answer student doubts or explain the 3-step solution to their misconception based on the provided query, topic, and language (English, Marathi, or Hindi). Keep it clear, concise, and pedagogical."
+        }
       },
-      "id": "2",
-      "name": "Process Remediation & AI Logic",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [500, 300]
+      "id": "a5276b3b-b9ee-4f1b-80d8-ed4914b43c84",
+      "name": "Vidyabot AI",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        224,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $(\"Vidyabot Webhook\").item.json.body.sessionId || \"vidyabot-default\" }}"
+      },
+      "id": "53464699-13e8-4535-832a-f20512a0a154",
+      "name": "Simple Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        368,
+        240
+      ]
     },
     {
       "parameters": {
         "respondWith": "json",
-        "responseBody": "={{ JSON.stringify($json) }}",
-        "options": {
-          "responseHeaders": {
-            "entries": [
-              {
-                "name": "Access-Control-Allow-Origin",
-                "value": "*"
-              },
-              {
-                "name": "Access-Control-Allow-Methods",
-                "value": "POST, GET, OPTIONS"
-              },
-              {
-                "name": "Access-Control-Allow-Headers",
-                "value": "Content-Type, Authorization"
-              }
-            ]
-          }
-        }
+        "responseBody": "={{ JSON.stringify({ \"status\": \"success\", \"provider\": \"n8n AI Workflow\", \"reply\": $json.output || $json.reply || $json.text || \"Resolved via n8n\" }) }}",
+        "options": {}
       },
-      "id": "3",
+      "id": "427ef3eb-b510-4149-b48a-3c9f90a0985a",
       "name": "Respond to Webhook",
       "type": "n8n-nodes-base.respondToWebhook",
-      "typeVersion": 1,
-      "position": [760, 300]
+      "typeVersion": 1.5,
+      "position": [
+        576,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        240,
+        240
+      ],
+      "id": "9c22cd95-b843-4cb4-bf4d-f769fe7062f5",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "jdF0h2sWUjv6YDxi",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
     }
   ],
+  "pinData": {},
   "connections": {
-    "Webhook Ingress": {
+    "Vidyabot Webhook": {
       "main": [
         [
           {
-            "node": "Process Remediation & AI Logic",
+            "node": "Vidyabot AI",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Process Remediation & AI Logic": {
+    "Vidyabot AI": {
       "main": [
         [
           {
@@ -77,9 +107,41 @@
           }
         ]
       ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Vidyabot AI",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Vidyabot AI",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
+  "active": true,
   "settings": {
-    "executionOrder": "v1"
-  }
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "0090253d-4646-4bae-a2db-3f14aa218561",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "5596fb8faf9275e4fcb9de750bd8fefe9fd94d56d8839fddf5fba53936d51bb2"
+  },
+  "nodeGroups": [],
+  "id": "2AlXDJ6ZoV2thC1a",
+  "tags": []
 }

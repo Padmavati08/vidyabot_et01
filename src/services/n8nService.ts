@@ -23,56 +23,105 @@ export interface N8nResponsePayload {
   metadata?: Record<string, unknown>;
 }
 
-const DEFAULT_N8N_URL = 'https://padmavati08.app.n8n.cloud/webhook/vidyabot-ai';
+const DEFAULT_N8N_URL = 'https://padmavati-naik8.app.n8n.cloud/weebhook/vidyabot-ai';
+const SECURE_INTERNAL_API_KEY = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_N8N_API_KEY) || '';
 const STORAGE_KEY_WEBHOOK = 'vidyabot_n8n_webhook_url';
+
+// Clean up any historical plain-text API key from browser storage for privacy and security
+try {
+  if (typeof window !== 'undefined' && window.localStorage) {
+    window.localStorage.removeItem('vidyabot_n8n_api_key');
+  }
+} catch {
+  // Ignore storage access restrictions
+}
 
 export const n8nService = {
   getWebhookUrl(): string {
-    return localStorage.getItem(STORAGE_KEY_WEBHOOK) || DEFAULT_N8N_URL;
+    const stored = localStorage.getItem(STORAGE_KEY_WEBHOOK);
+    if (!stored) return DEFAULT_N8N_URL;
+    const trimmed = stored.trim();
+    if (trimmed.includes('padmavati08.app.n8n.cloud')) {
+      return DEFAULT_N8N_URL;
+    }
+    return trimmed;
   },
 
   setWebhookUrl(url: string) {
-    localStorage.setItem(STORAGE_KEY_WEBHOOK, url.trim());
+    const trimmed = (url || '').trim();
+    localStorage.setItem(STORAGE_KEY_WEBHOOK, trimmed || DEFAULT_N8N_URL);
+  },
+
+  getApiKey(): string {
+    return SECURE_INTERNAL_API_KEY;
   },
 
   async executeWorkflow(payload: N8nRequestPayload): Promise<N8nResponsePayload> {
-    const webhookUrl = this.getWebhookUrl();
+    const primaryUrl = this.getWebhookUrl();
+    const apiKey = this.getApiKey();
 
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 6000);
+    // Prepare candidate URLs: the configured URL, plus alternate /webhook/ or /weebhook/ spelling
+    const candidateUrls = [primaryUrl];
+    if (primaryUrl.includes('/weebhook/')) {
+      candidateUrls.push(primaryUrl.replace('/weebhook/', '/webhook/'));
+    } else if (primaryUrl.includes('/webhook/')) {
+      candidateUrls.push(primaryUrl.replace('/webhook/', '/weebhook/'));
+    }
 
-      const response = await fetch(webhookUrl, {
-        method: 'POST',
-        headers: {
+    for (const webhookUrl of candidateUrls) {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 6000);
+
+        const headers: Record<string, string> = {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
-        },
-        body: JSON.stringify({
-          ...payload,
-          sessionId: localStorage.getItem('vidyabot_session_id') || `session_${Math.random().toString(36).substring(2, 9)}`,
-          timestamp: new Date().toISOString(),
-          app: 'Vidyabot-Adaptive-Learning',
-        }),
-        signal: controller.signal,
-      });
+        };
 
-      clearTimeout(timeoutId);
-
-      if (response.ok) {
-        const data = await response.json();
-        if (data && (data.reply || data.output || data.text)) {
-          return {
-            status: 'success',
-            provider: 'n8n Cloud Webhook Engine',
-            workflow_id: data.workflow_id || 'vidyabot-live-workflow',
-            reply: data.reply || data.output || data.text || 'Response received from n8n workflow.',
-            steps: Array.isArray(data.steps) ? data.steps : undefined,
-          };
+        if (apiKey) {
+          headers['X-N8N-API-KEY'] = apiKey;
+          headers['Authorization'] = `Bearer ${apiKey}`;
         }
+
+        const response = await fetch(webhookUrl, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({
+            ...payload,
+            sessionId: localStorage.getItem('vidyabot_session_id') || `session_${Math.random().toString(36).substring(2, 9)}`,
+            timestamp: new Date().toISOString(),
+            app: 'Vidyabot-Adaptive-Learning',
+          }),
+          signal: controller.signal,
+        });
+
+        clearTimeout(timeoutId);
+
+        if (response.ok) {
+          let data = await response.json();
+          // Support stringified JSON outputs from n8n response nodes
+          if (typeof data === 'string') {
+            try {
+              data = JSON.parse(data);
+            } catch {
+              // Keep as string if not parseable
+            }
+          }
+
+          if (data && (data.reply || data.output || data.text)) {
+            const replyText = data.reply || data.output || data.text;
+            return {
+              status: 'success',
+              provider: data.provider || 'n8n AI Workflow (LangChain Agent)',
+              workflow_id: data.workflow_id || '2AlXDJ6ZoV2thC1a',
+              reply: replyText,
+              steps: Array.isArray(data.steps) ? data.steps : undefined,
+            };
+          }
+        }
+      } catch (err) {
+        console.warn(`n8n endpoint attempt (${webhookUrl}) completed:`, err);
       }
-    } catch (err) {
-      console.warn('n8n Webhook direct connection attempt completed, activating smart fallback:', err);
     }
 
     // Graceful smart fallback for resilient live demo
