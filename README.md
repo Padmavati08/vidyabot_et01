@@ -66,6 +66,7 @@ Unlike generic flashcard apps, Vidyabot diagnoses student misconceptions prior t
 - **Backend:** Express, Node.js, TSX, Vite middleware.
 - **AI Service:** `@google/genai` TypeScript SDK running server-side (`server.ts`).
 - **Data Persistence:** LocalStorage service (`src/services/storageService.ts`) with zero external database configuration needed for local development.
+- **Optional Retrieval Layer (RAG):** Optional self-hosted n8n webhook (`VITE_N8N_RAG_WEBHOOK_URL`) that retrieves answers from uploaded textbook material for doubts the local knowledge base can't answer. Falls back to Gemini, then to a local "not found" message, if unconfigured or unreachable — the doubt tutor works identically with or without it.
 
 ---
 
