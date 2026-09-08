@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sparkles, BookOpen, Flame, Award, AlertCircle, ArrowRight, Play, CheckCircle2, Clock, Upload, Trophy, ChevronRight, Atom, Calculator, Globe, BookMarked, Languages } from 'lucide-react';
+import { Sparkles, BookOpen, Flame, Award, AlertCircle, ArrowRight, Play, CheckCircle2, Clock, Upload, Trophy, ChevronRight, Atom, Calculator, Globe, BookMarked, Languages, Layers, Video, Bot, FileText, Wifi, Compass, ShieldCheck } from 'lucide-react';
 import { UserProfile, TopicStatus } from '../types';
 import { LAWS_OF_MOTION_CHAPTER } from '../data/lawsOfMotionData';
 import { CLASS_9_CURRICULUM } from '../data/curriculumData';
@@ -164,6 +164,84 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ userProfile, onNav
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Left 2 Cols: Main Chapter Card & Topics */}
         <div className="lg:col-span-2 space-y-6">
+          {/* ET-01 Knowledge Consolidation Matrix Card */}
+          <div className="bg-gradient-to-br from-purple-50/90 via-white to-purple-50/50 rounded-3xl border border-purple-200 p-6 shadow-xs space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-[#6C3BEF] text-white flex items-center justify-center shadow-xs">
+                  <Layers className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-[#3F207C]">
+                    {isMr ? 'ज्ञान एकत्रीकरण व सुसंवादी समज केंद्र' : isHi ? 'ज्ञान संकलन एवं सुसंगत समझ केंद्र' : 'Cohesive Knowledge Consolidation Hub'}
+                  </h3>
+                  <p className="text-[11px] text-slate-500 font-medium">
+                    {isMr
+                      ? 'पाठ्यपुस्तके, व्याख्याने, AI साधने आणि वैयक्तिक नोट्सचे एकाच मानसिक मॉडेलमध्ये एकत्रीकरण'
+                      : isHi
+                      ? 'पाठ्यपुस्तकों, व्याख्यानों, AI टूल्स और पर्सनल नोट्स का एक सुसंगत मानसिक मॉडल'
+                      : 'Unifying 4 scattered sources into 1 lasting, cohesive mental model'}
+                  </p>
+                </div>
+              </div>
+
+              <span className="self-start sm:self-center text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
+                ET-01 Framework Active
+              </span>
+            </div>
+
+            {/* 4 Unified Input Source Badges */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1">
+              <div className="p-2.5 rounded-xl bg-white border border-purple-100 shadow-2xs space-y-1">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800">
+                  <BookOpen className="w-3.5 h-3.5 text-[#6C3BEF]" />
+                  <span>Textbooks</span>
+                </div>
+                <div className="text-[10px] text-slate-500">NCERT & State Board</div>
+              </div>
+
+              <div className="p-2.5 rounded-xl bg-white border border-purple-100 shadow-2xs space-y-1">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800">
+                  <Video className="w-3.5 h-3.5 text-rose-500" />
+                  <span>Lectures</span>
+                </div>
+                <div className="text-[10px] text-slate-500">Video & Audio Notes</div>
+              </div>
+
+              <div className="p-2.5 rounded-xl bg-white border border-purple-100 shadow-2xs space-y-1">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800">
+                  <Bot className="w-3.5 h-3.5 text-indigo-500" />
+                  <span>AI Tools</span>
+                </div>
+                <div className="text-[10px] text-slate-500">Grounded RAG Engine</div>
+              </div>
+
+              <div className="p-2.5 rounded-xl bg-white border border-purple-100 shadow-2xs space-y-1">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800">
+                  <FileText className="w-3.5 h-3.5 text-amber-500" />
+                  <span>Study Notes</span>
+                </div>
+                <div className="text-[10px] text-slate-500">Uploaded & Typed</div>
+              </div>
+            </div>
+
+            {/* Scaffolding Bar for Autonomous Learners */}
+            <div className="p-3 bg-white rounded-xl border border-purple-100/80 flex items-center justify-between gap-3 text-xs">
+              <div className="flex items-center gap-2 text-slate-700">
+                <Compass className="w-4 h-4 text-[#6C3BEF] shrink-0" />
+                <span className="font-medium text-[11px]">
+                  <strong>Self-Directed Study Scaffolding:</strong> Autonomous diagnostic cues & error remediation active without teacher supervision.
+                </span>
+              </div>
+              <button
+                onClick={() => onNavigate('/upload')}
+                className="px-3 py-1 bg-purple-100 hover:bg-purple-200 text-[#3F207C] text-[11px] font-bold rounded-lg transition-colors shrink-0 cursor-pointer"
+              >
+                Manage Inputs
+              </button>
+            </div>
+          </div>
+
           <div className="bg-white rounded-3xl border border-purple-100 p-6 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <div>

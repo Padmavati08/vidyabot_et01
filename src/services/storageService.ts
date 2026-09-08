@@ -380,7 +380,7 @@ export const storageService = {
       const data = localStorage.getItem(STORAGE_KEYS.UPLOADED_MATERIALS);
       if (data) return JSON.parse(data);
 
-      // Default demo PDF summary
+      // Default demo PDF summary with comprehensive readable notes
       const defaultMaterials: UploadedMaterial[] = [
         {
           id: 'mat-demo-1',
@@ -394,6 +394,47 @@ export const storageService = {
           status: 'ready',
           extractedSummary:
             'Class 9 Physics chapter summary covering Force, Newton’s 1st Law (Inertia), Newton’s 2nd Law (F=ma and momentum), and Newton’s 3rd Law (Action-Reaction).',
+          fullNotes: `### Class 9 Science: Laws of Motion — Comprehensive Revision Notes
+
+#### Overview & Core Definitions
+- **Force (F):** A push or pull acting upon an object as a result of its interaction with another object. Force can alter the state of rest, the magnitude or direction of motion, or the geometrical shape of a body.
+- **SI Unit of Force:** Newton (N), where 1 N = 1 kg·m/s².
+- **CGS Unit:** Dyne, where 1 N = 10⁵ dyne.
+- **Balanced Forces:** When two equal forces act on an object in opposite directions, the net force is zero ($F_{net} = 0$). No acceleration is produced.
+- **Unbalanced Forces:** When the net force acting on a body is greater than zero ($F_{net} > 0$), resulting in accelerated motion in the direction of the larger force.
+
+#### Newton’s Laws of Motion
+1. **Newton’s First Law (Law of Inertia):** Every object continues in its state of rest or uniform motion in a straight line unless compelled to change that state by an applied unbalanced external force.
+   - *Inertia:* The natural tendency of an object to resist a change in its state of rest or of motion. Mass is the quantitative measure of inertia.
+2. **Newton’s Second Law:** The rate of change of momentum of an object is directly proportional to the applied unbalanced force in the direction of force.
+   - *Mathematical Formulation:* $F = m \\times a$
+   - *Momentum (p):* Product of mass and velocity ($p = m \\times v$). SI unit: kg·m/s.
+3. **Newton’s Third Law:** To every action, there is always an equal, opposite, and simultaneous reaction.
+   - Action and reaction forces act on **two different objects**, which is why they never cancel each other out.
+
+#### Key Applications in Daily Life
+- Catching a cricket ball: The fielder pulls his hands backward to increase the time of impact, reducing the acceleration and force according to Newton's 2nd Law.
+- Seatbelts in automobiles: Prevent passenger injury from inertia of motion when brakes are suddenly applied.
+- Rocket propulsion: Burnt exhaust gases shoot downward (action), propelling the rocket upward (reaction).`,
+          keyConcepts: [
+            'Force is a vector quantity having magnitude and direction.',
+            'Mass is the direct quantitative measure of inertia: higher mass means greater resistance to acceleration.',
+            'Balanced forces cause zero acceleration; unbalanced forces cause acceleration.',
+            'Linear momentum is conserved in isolated systems: p = m × v.',
+            'Action and reaction forces act on different interacting bodies, never on the same object.',
+          ],
+          keyFormulas: [
+            'F_net = m × a (Force = Mass × Acceleration)',
+            'p = m × v (Linear Momentum)',
+            '1 Newton = 10⁵ Dynes',
+            'a = (v - u) / t (Kinematic Acceleration)',
+            'F_action = - F_reaction (Newton\'s 3rd Law)',
+          ],
+          practiceQuestions: [
+            'What happens to the acceleration of an object if the applied force is doubled and mass is halved? (Acceleration increases by 4 times, since a = F/m)',
+            'Why does a passenger jerk backwards when a stationary bus starts suddenly? (Due to inertia of rest of the upper body)',
+            'A 5 kg mass accelerates at 3 m/s². What is the net force acting on it? (F = m × a = 5 × 3 = 15 N)',
+          ],
         },
       ];
       return defaultMaterials;

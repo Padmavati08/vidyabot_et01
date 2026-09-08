@@ -100,6 +100,15 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
               </button>
 
+              {/* Offline & 2G Resilient Mode Indicator */}
+              <div
+                title="Offline & 2G Resilient: Local Caching & Client-side Physics Active"
+                className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200/80 text-emerald-800 text-[11px] font-bold shadow-2xs"
+              >
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span>Low-Data / Offline Ready</span>
+              </div>
+
               {/* Streak Counter */}
               {userProfile && (
                 <div

@@ -174,6 +174,7 @@ export interface RevisionSchedule {
     keyPoints: string[];
     myCommonErrors: string[];
   };
+  fullNotes?: string;
 }
 
 export interface UploadedMaterial {
@@ -188,6 +189,10 @@ export interface UploadedMaterial {
   uploadedAt: string;
   status: 'ready' | 'processing';
   extractedSummary?: string;
+  fullNotes?: string;
+  keyConcepts?: string[];
+  keyFormulas?: string[];
+  practiceQuestions?: string[];
 }
 
 export interface Badge {

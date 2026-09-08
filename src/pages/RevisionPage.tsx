@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Award, Clock, Sparkles, BookOpen, CheckCircle2, AlertCircle, Play, FileText, ChevronRight } from 'lucide-react';
+import { Award, Clock, Sparkles, BookOpen, CheckCircle2, AlertCircle, Play, FileText, ChevronRight, Eye } from 'lucide-react';
 import { UserProfile, RevisionSchedule } from '../types';
 import { storageService } from '../services/storageService';
 import { MiniQuizModal } from '../components/MiniQuizModal';
+import { FullRevisionNotesModal } from '../components/FullRevisionNotesModal';
 import { PageBackButton } from '../components/PageBackButton';
 
 interface RevisionPageProps {
@@ -16,6 +17,7 @@ export const RevisionPage: React.FC<RevisionPageProps> = ({ userProfile, onNavig
   const isHi = lang === 'hi';
 
   const [schedules, setSchedules] = useState<RevisionSchedule[]>(storageService.getRevisionSchedules());
+  const [selectedScheduleForReading, setSelectedScheduleForReading] = useState<RevisionSchedule | null>(null);
   const [activeMiniQuiz, setActiveMiniQuiz] = useState<{
     topicId: string;
     level: number;
@@ -146,10 +148,21 @@ export const RevisionPage: React.FC<RevisionPageProps> = ({ userProfile, onNavig
 
               {/* Compact Revision Notes Box */}
               <div className="space-y-4">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-[#3F207C] flex items-center gap-1.5">
-                  <FileText className="w-4 h-4 text-[#6C3BEF]" />
-                  <span>{isMr ? 'जलद उजळणी सारांश नोट्स' : isHi ? 'त्वरित पुनरावलोकन नोट्स' : 'Compact Revision Notes & Formula Sheet'}</span>
-                </h4>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-[#3F207C] flex items-center gap-1.5">
+                    <FileText className="w-4 h-4 text-[#6C3BEF]" />
+                    <span>{isMr ? 'जलद उजळणी सारांश नोट्स' : isHi ? 'त्वरित पुनरावलोकन नोट्स' : 'Compact Revision Notes & Formula Sheet'}</span>
+                  </h4>
+
+                  <button
+                    onClick={() => setSelectedScheduleForReading(schedule)}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-purple-100 hover:bg-purple-200 text-[#3F207C] text-xs font-bold rounded-xl transition-all cursor-pointer shadow-2xs hover:scale-102"
+                  >
+                    <BookOpen className="w-3.5 h-3.5 text-[#6C3BEF]" />
+                    <span>{isMr ? 'संपूर्ण नोट्स व उदाहरणे वाचा' : isHi ? 'संपूर्ण नोट्स एवं उदाहरण पढ़ें' : 'Read Whole Master Notes'}</span>
+                    <ChevronRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Box 1: Key Definitions */}
@@ -241,6 +254,24 @@ export const RevisionPage: React.FC<RevisionPageProps> = ({ userProfile, onNavig
           }}
           onCompleted={() => {
             refreshSchedules();
+          }}
+        />
+      )}
+
+      {/* Full Revision Notes Modal */}
+      {selectedScheduleForReading && (
+        <FullRevisionNotesModal
+          schedule={selectedScheduleForReading}
+          currentLang={lang}
+          onClose={() => setSelectedScheduleForReading(null)}
+          onStartQuiz={() => {
+            const topicId = selectedScheduleForReading.topicId;
+            setSelectedScheduleForReading(null);
+            setActiveMiniQuiz({
+              topicId,
+              level: 1,
+              dayLabel: 'Day 1 Recall',
+            });
           }}
         />
       )}
