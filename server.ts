@@ -190,7 +190,7 @@ TARGET RESPONSE LANGUAGE: ${targetLang}
 Provide a structured response following the schema.`;
 
       const response = await client.models.generateContent({
-        model: 'gemini-3.7-flash',
+        model: 'gemini-3.8-flash',
         contents: userContentPrompt,
         config: {
           systemInstruction,
@@ -359,7 +359,7 @@ Provide the breakdown in 3 brief, high-impact sections:
 3. ⚡ Golden Rule / Formula Tip (1-sentence rule to remember during exams)`;
 
       const response = await client.models.generateContent({
-        model: 'gemini-3.7-flash',
+        model: 'gemini-3.8-flash',
         contents: prompt,
         config: {
           responseMimeType: 'application/json',
@@ -427,7 +427,7 @@ Diagnostic Performance:
 Generate a short, encouraging 2-sentence study guidance note in ${targetLang} that motivates the student and highlights exactly what to pay attention to in the upcoming lesson.`;
 
       const response = await client.models.generateContent({
-        model: 'gemini-3.7-flash',
+        model: 'gemini-3.8-flash',
         contents: prompt,
       });
 
