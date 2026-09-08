@@ -4,6 +4,7 @@ import { createServer as createViteServer } from 'vite';
 import dotenv from 'dotenv';
 import { GoogleGenAI, Type } from '@google/genai';
 import { TOPIC_LESSONS, LAWS_OF_MOTION_CHAPTER } from './src/data/lawsOfMotionData';
+import { retrieveTopK, isConfidentMatch } from './src/lib/ragRetrieval';
 
 dotenv.config();
 
@@ -238,7 +239,86 @@ Provide a structured response following the schema.`;
     }
   });
 
-  // 3. Error Simplification Endpoint
+  // 3. RAG Doubt Endpoint — retrieval-first, Gemini only when retrieval alone
+  //    isn't confident. Real BM25 over the actual textbook corpus, no n8n,
+  //    no fabricated evaluation scores.
+  app.post('/api/rag-doubt', async (req, res) => {
+    try {
+      const { question, language = 'en' } = req.body;
+      if (!question || typeof question !== 'string') {
+        return res.status(400).json({ found: false, error: 'Valid question string is required' });
+      }
+
+      const results = retrieveTopK(question, 3);
+
+      // Nothing in the textbook corpus is even loosely related — be honest
+      // about it and let the caller fall through to Gemini/local fallback.
+      if (results.length === 0) {
+        return res.json({ found: false });
+      }
+
+      const langMap: Record<string, string> = {
+        mr: 'Marathi (मराठी)',
+        hi: 'Hindi (हिंदी)',
+        en: 'English',
+      };
+      const targetLang = langMap[language] || 'English';
+
+      // Confident retrieval: return the matched textbook passage(s) directly.
+      // No LLM call — fast, free. We include the top 2 chunks (not just 1)
+      // since BM25 is keyword matching, not semantic understanding — a
+      // close second-place chunk is sometimes the better answer, and
+      // showing both costs nothing.
+      if (isConfidentMatch(results)) {
+        const top = results.slice(0, 2);
+        const combinedText = top.map((r) => r.chunk.text).join('\n\n');
+        const combinedTitle = [...new Set(top.map((r) => r.chunk.sectionTitle))].join(' / ');
+        return res.json({
+          answer: combinedText,
+          sourceType: 'rag_retrieval',
+          sourceTitle: `Textbook: ${combinedTitle}`,
+          matchedChunks: results.map((r) => r.chunk.text),
+        });
+      }
+
+      // Weak-but-nonzero match: only now does Gemini get involved, strictly
+      // to synthesize an answer FROM the retrieved passages — it is not
+      // allowed to answer from general knowledge.
+      const client = getGeminiClient();
+      if (!client) {
+        return res.json({ found: false });
+      }
+
+      const contextText = results
+        .map((r, i) => `[Passage ${i + 1} — ${r.chunk.sectionTitle}]: ${r.chunk.text}`)
+        .join('\n\n');
+
+      const response = await client.models.generateContent({
+        model: 'gemini-3.8-flash',
+        contents: `RETRIEVED TEXTBOOK PASSAGES:\n${contextText}\n\nSTUDENT QUESTION: "${question}"\n\nAnswer strictly using only the passages above, in ${targetLang}. If the passages don't actually answer the question, say so honestly instead of guessing.`,
+        config: {
+          systemInstruction: 'You are a strict textbook-grounded tutor. Never answer from general knowledge — only from the passages provided. Keep answers under 120 words.',
+        },
+      });
+
+      const answerText = response.text?.trim();
+      if (!answerText) {
+        return res.json({ found: false });
+      }
+
+      return res.json({
+        answer: answerText,
+        sourceType: 'rag_gemini_synthesis',
+        sourceTitle: `Textbook + AI: ${results[0].chunk.sectionTitle}`,
+        matchedChunks: results.map((r) => r.chunk.text),
+      });
+    } catch (err: any) {
+      console.error('RAG doubt endpoint error:', err);
+      return res.json({ found: false });
+    }
+  });
+
+  // 4. Error Simplification Endpoint
   app.post('/api/simplify', async (req, res) => {
     try {
       const {
@@ -312,7 +392,7 @@ Provide the breakdown in 3 brief, high-impact sections:
     }
   });
 
-  // 4. Personalized Diagnostic Guidance Endpoint
+  // 5. Personalized Diagnostic Guidance Endpoint
   app.post('/api/lesson-guidance', async (req, res) => {
     try {
       const {
